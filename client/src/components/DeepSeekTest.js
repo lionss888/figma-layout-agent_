@@ -1,89 +1,66 @@
 import React, { useState } from 'react';
-import {
-  Box,
-  Button,
-  TextField,
-  Typography,
-  Paper,
-  CircularProgress,
-  Alert
-} from '@mui/material';
 import axios from 'axios';
+import { Button, TextField, Box, Typography } from '@mui/material';
 
-// Configure axios to use the correct base URL
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || window.location.origin
+  baseURL: window.location.origin
 });
 
 const DeepSeekTest = () => {
   const [apiKey, setApiKey] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [testResult, setTestResult] = useState(null);
+  const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleTest = async () => {
-    setIsLoading(true);
-    setError(null);
-    setTestResult(null);
-
     try {
-      const response = await api.post('/api/test-deepseek', { 
-        apiKey: apiKey || process.env.REACT_APP_DEEPSEEK_API_KEY 
-      });
-      setTestResult(response.data);
+      setLoading(true);
+      setError(null);
+      const result = await api.post('/api/test-deepseek', { apiKey });
+      setResponse(result.data);
     } catch (err) {
-      console.error('API Error:', err);
-      setError(err.response?.data?.error || 'An error occurred during the test');
+      setError(err.response?.data?.error || err.message);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4 }}>
-      <Paper elevation={3} sx={{ p: 3 }}>
-        <Typography variant="h5" gutterBottom>
-          DeepSeek API Test
+    <Box sx={{ p: 3, maxWidth: 600, margin: '0 auto' }}>
+      <Typography variant="h5" gutterBottom>
+        DeepSeek API Test
+      </Typography>
+      
+      <TextField
+        fullWidth
+        label="API Key"
+        value={apiKey}
+        onChange={(e) => setApiKey(e.target.value)}
+        margin="normal"
+        placeholder="Enter your DeepSeek API key"
+      />
+
+      <Button
+        variant="contained"
+        onClick={handleTest}
+        disabled={loading}
+        sx={{ mt: 2 }}
+      >
+        {loading ? 'Testing...' : 'Test Connection'}
+      </Button>
+
+      {error && (
+        <Typography color="error" sx={{ mt: 2 }}>
+          Error: {error}
         </Typography>
-        
-        <TextField
-          fullWidth
-          label="API Key"
-          value={apiKey}
-          onChange={(e) => setApiKey(e.target.value)}
-          margin="normal"
-          type="password"
-          placeholder="Enter your DeepSeek API key (optional if set in environment)"
-        />
+      )}
 
-        <Button
-          variant="contained"
-          onClick={handleTest}
-          disabled={isLoading}
-          sx={{ mt: 2 }}
-        >
-          {isLoading ? <CircularProgress size={24} /> : 'Run Test'}
-        </Button>
-
-        {error && (
-          <Alert severity="error" sx={{ mt: 2 }}>
-            {error}
-          </Alert>
-        )}
-
-        {testResult && (
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Test Results
-            </Typography>
-            <Paper variant="outlined" sx={{ p: 2 }}>
-              <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-                {JSON.stringify(testResult, null, 2)}
-              </pre>
-            </Paper>
-          </Box>
-        )}
-      </Paper>
+      {response && (
+        <Box sx={{ mt: 2, p: 2, bgcolor: 'background.paper', borderRadius: 1 }}>
+          <Typography variant="h6">Response:</Typography>
+          <pre>{JSON.stringify(response, null, 2)}</pre>
+        </Box>
+      )}
     </Box>
   );
 };

@@ -7,6 +7,7 @@ import Container from '@mui/material/Container';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import DeepSeekTest from './components/DeepSeekTest';
 
 const theme = createTheme({
   palette: {
@@ -35,25 +36,12 @@ function App() {
           </AppBar>
           <Container maxWidth="lg" sx={{ mt: 4 }}>
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<DeepSeekTest />} />
             </Routes>
           </Container>
         </Box>
       </Router>
     </ThemeProvider>
-  );
-}
-
-function Home() {
-  return (
-    <Box>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Welcome to API Manager
-      </Typography>
-      <Typography variant="body1">
-        This is a web application for managing and interacting with various APIs.
-      </Typography>
-    </Box>
   );
 }
 
